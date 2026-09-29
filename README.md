@@ -1,6 +1,6 @@
 # Passerelle Modbus TCP/IP ↔ Modbus RTU
 
-> Projet BUT GEII 2023–2024 réalisé en binôme : supervision et contrôle à distance d'un régulateur **Eurotherm 2216e**.  
+> **Dépôt documentaire** — projet BUT GEII 2023–2024 réalisé en binôme : supervision et contrôle à distance d'un régulateur **Eurotherm 2216e**. Les sources C++ originales ne sont plus disponibles dans l'archive ; la documentation s'appuie sur les rapports et artefacts conservés.  
 > **English version below.**
 
 ## 🇫🇷 Vue d'ensemble
