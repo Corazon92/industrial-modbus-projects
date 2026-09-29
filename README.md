@@ -1,112 +1,108 @@
 # Passerelle Modbus TCP/IP ↔ Modbus RTU
 
-> Projet universitaire de communication industrielle réalisé en BUT GEII.  
-> **English version available below.**
+> Projet BUT GEII 2023–2024 réalisé en binôme : supervision et contrôle à distance d'un régulateur **Eurotherm 2216e**.  
+> **English version below.**
 
-## 🇫🇷 Présentation
+## 🇫🇷 Vue d'ensemble
 
-Ce projet avait pour objectif de concevoir une **passerelle de communication entre un client réseau et un régulateur de température Eurotherm 2216e**.
-
-Le système repose sur un ordinateur jouant le rôle de passerelle :
-- côté réseau, une application **client communique avec un serveur en TCP/IP** ;
-- côté terrain, le serveur échange avec le régulateur via une **liaison série RS-232 utilisant Modbus RTU**.
-
-L'objectif final était de permettre la **surveillance à distance de la température**, son affichage graphique et la modification de la consigne depuis un poste du réseau.
-
-## Architecture
+Deux applications C++ Builder communiquent à travers le réseau de l'IUT. Le poste serveur joue aussi le rôle de passerelle vers le régulateur connecté en série.
 
 ```text
-┌─────────────────┐       TCP/IP        ┌────────────────────┐
-│ Application     │ <-----------------> │ Application serveur│
-│ client / IHM    │                     │ / passerelle       │
-└─────────────────┘                     └─────────┬──────────┘
-                                                 │ RS-232
-                                                 │ Modbus RTU
-                                       ┌─────────▼──────────┐
-                                       │ Eurotherm 2216e   │
-                                       │ Régulateur        │
-                                       └────────────────────┘
+Application client / IHM
+        │
+   sockets TCP/IP
+        │
+        ▼
+Serveur C++ Builder / passerelle
+        │
+   trames Modbus RTU
+   + CRC16
+        │
+      RS-232
+        │
+        ▼
+Eurotherm 2216e
 ```
 
-## Fonctionnalités réalisées
+Le client affiche la température et la consigne, trace leur évolution et permet d'envoyer une nouvelle consigne. La passerelle traduit ces demandes en échanges Modbus RTU avec le régulateur.
 
-- développement de deux applications : **client et serveur** ;
-- connexion et échanges par **sockets TCP/IP** ;
-- communication série **RS-232** ;
-- construction et lecture de trames **Modbus RTU** ;
-- calcul du **CRC16 Modbus** ;
-- lecture de la température mesurée ;
-- transmission de la valeur au client ;
-- interface graphique de supervision ;
-- affichage de l'évolution de la température sous forme de courbe ;
-- travail sur l'écriture d'une nouvelle consigne de température.
+## Chaîne de communication
 
-## Technologies et matériel
+### Client ↔ passerelle
 
-**Développement :** C++, C++ Builder, Windows  
-**Réseau :** TCP/IP, sockets client/serveur  
-**Industriel :** Modbus RTU, RS-232, CRC16  
-**Outils :** ModbusDoctor, HyperTerminal, TComPort  
-**Matériel :** régulateur de température Eurotherm 2216e
+Les deux applications utilisent une architecture client/serveur TCP/IP. Le client initie les échanges et interroge périodiquement le serveur. Les documents archivés montrent une alternance entre les demandes de température et de consigne, avec mise à jour de l'IHM et du graphique.
 
-## Ce que ce projet m'a apporté
+### Passerelle ↔ régulateur
 
-Ce projet m'a permis de travailler sur toute une chaîne de communication, de l'interface utilisateur jusqu'à un équipement industriel. Il combine programmation C++, réseau, protocole industriel, communication série et intégration matériel/logiciel.
+La liaison terrain utilise **RS-232 + Modbus RTU** via le composant TComPort.
 
-## Contenu du dépôt
+Le serveur :
+1. construit la requête Modbus ;
+2. ajoute le **CRC16** calculé dynamiquement ;
+3. transmet la trame sur le port série ;
+4. récupère la réponse dans le callback de réception ;
+5. reconstruit la valeur à partir des octets reçus et applique le facteur d'échelle ;
+6. rend la valeur disponible au client TCP.
 
-Les sources C++ originales n'étant plus disponibles dans mes archives, ce dépôt sert de **documentation technique et de portfolio du projet**. Il ne contient donc pas de reconstitution artificielle du code original.
+Les essais ont été réalisés avec **ModbusDoctor** et HyperTerminal avant l'intégration complète.
+
+## Opérations Modbus vérifiées dans le rapport
+
+- fonction **03** pour la lecture de registres ;
+- fonction **06** pour l'écriture d'un registre ;
+- lecture de la température et de la consigne ;
+- écriture de la consigne ;
+- calcul et ajout du CRC16.
+
+Le rapport indique que la consigne est associée au registre 2 du régulateur utilisé pendant le projet.
+
+## IHM client
+
+L'application client comporte notamment :
+- connexion/déconnexion au serveur ;
+- affichage de la température ;
+- affichage de la consigne ;
+- saisie d'une nouvelle consigne ;
+- validation de la saisie numérique ;
+- graphique température/consigne en fonction du temps.
+
+## Gestion de la réception série
+
+Un point rencontré pendant l'intégration était la réception d'une réponse série en plusieurs événements. Le programme conservait les octets reçus dans un buffer et utilisait un indicateur pour distinguer les événements de réception.
+
+Pour une écriture de consigne, l'interrogation périodique était temporairement suspendue pendant l'échange, puis relancée après l'opération.
+
+## Résultat et limite identifiée
+
+Le rapport final valide :
+- les échanges client/serveur ;
+- l'acquisition réelle de température ;
+- la communication régulateur ↔ passerelle ;
+- l'affichage côté client ;
+- la modification distante de la consigne.
+
+L'amélioration principale identifiée concernait la **gestion robuste des erreurs côté serveur**, notamment si le régulateur n'était pas alimenté ou si la liaison série était indisponible.
+
+## Technologies
+
+**C++ · C++ Builder · TCP/IP · sockets · Modbus RTU · RS-232 · CRC16 · TComPort · ModbusDoctor · Eurotherm 2216e**
+
+## Sources du dépôt
+
+Les rapports et présentations permettent de documenter précisément l'architecture et le comportement, mais les fichiers `.cpp/.h` originaux n'ont pas été retrouvés dans l'archive. Aucun code n'est donc reconstruit artificiellement.
 
 ---
 
 # 🇬🇧 Modbus TCP/IP ↔ Modbus RTU Gateway
 
-## Overview
+Two C++ Builder applications were developed for remote monitoring and control of an **Eurotherm 2216e** temperature controller.
 
-University project completed during my BUT GEII studies. The goal was to build a **communication gateway between a network client and an Eurotherm 2216e temperature controller**.
+The client communicates with a gateway/server through TCP/IP sockets. The gateway builds Modbus RTU requests, appends a CRC16 and exchanges frames with the controller over RS-232.
 
-A computer acted as the gateway:
-- a client application communicated with the server through **TCP/IP sockets**;
-- the server communicated with the industrial controller through **RS-232 using Modbus RTU**.
+Verified project features include Modbus function 03 register reads, function 06 register writes, temperature and setpoint acquisition, remote setpoint updates and a client GUI with real-time plotting.
 
-The system was designed for remote temperature monitoring, graphical visualization and remote setpoint control.
+The final report confirms end-to-end communication and identifies server-side error handling for unavailable serial hardware as the main remaining robustness improvement.
 
-## Architecture
+**Stack:** C++ · C++ Builder · TCP/IP · Modbus RTU · RS-232 · CRC16 · TComPort
 
-```text
-┌─────────────────┐       TCP/IP        ┌────────────────────┐
-│ Client          │ <-----------------> │ Gateway / server   │
-│ application     │                     │ application        │
-└─────────────────┘                     └─────────┬──────────┘
-                                                 │ RS-232
-                                                 │ Modbus RTU
-                                       ┌─────────▼──────────┐
-                                       │ Eurotherm 2216e   │
-                                       │ Controller        │
-                                       └────────────────────┘
-```
-
-## Implemented features
-
-- client and server applications;
-- TCP/IP socket communication;
-- RS-232 serial communication;
-- Modbus RTU frame generation and parsing;
-- Modbus CRC16 calculation;
-- temperature acquisition;
-- data forwarding to the network client;
-- supervision GUI;
-- temperature graph visualization;
-- work on remote temperature setpoint writing.
-
-## Technologies
-
-**Development:** C++, C++ Builder, Windows  
-**Networking:** TCP/IP, client/server sockets  
-**Industrial communication:** Modbus RTU, RS-232, CRC16  
-**Tools:** ModbusDoctor, HyperTerminal, TComPort  
-**Hardware:** Eurotherm 2216e temperature controller
-
-## Repository note
-
-The original C++ source files are no longer present in my archived project files. This repository therefore documents the engineering work without pretending to reconstruct the original implementation.
+The original C++ source files are no longer present in the archive, so this repository documents the verified implementation without fabricating replacement code.
