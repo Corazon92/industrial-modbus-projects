@@ -87,6 +87,10 @@ L'amélioration principale identifiée concernait la **gestion robuste des erreu
 
 **C++ · C++ Builder · TCP/IP · sockets · Modbus RTU · RS-232 · CRC16 · TComPort · ModbusDoctor · Eurotherm 2216e**
 
+## Robotique industrielle associée
+
+Des travaux complémentaires sur robots **Stäubli/VAL3** et sur une cellule **Fanuc–Stäubli–Siemens–Keyence** sont documentés dans [`docs/industrial-robotics.md`](docs/industrial-robotics.md). Ils sont séparés du projet Modbus pour ne pas mélanger les périmètres.
+
 ## Sources du dépôt
 
 Les rapports et présentations permettent de documenter précisément l'architecture et le comportement, mais les fichiers `.cpp/.h` originaux n'ont pas été retrouvés dans l'archive. Aucun code n'est donc reconstruit artificiellement.
