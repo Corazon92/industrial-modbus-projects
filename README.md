@@ -1,6 +1,6 @@
 # Passerelle Modbus TCP/IP ↔ Modbus RTU
 
-> **Dépôt documentaire** — projet BUT GEII 2023–2024 réalisé en binôme : supervision et contrôle à distance d'un régulateur **Eurotherm 2216e**. Les sources C++ originales ne sont plus disponibles dans l'archive ; la documentation s'appuie sur les rapports et artefacts conservés.  
+> Projet BUT GEII 2023–2024 réalisé en binôme : supervision et contrôle à distance d'un régulateur **Eurotherm 2216e**. Les sources C++ Builder complètes ne sont plus disponibles ; la couche Modbus vérifiée a été republiée sous une forme portable et testée.
 > **English version below.**
 
 ## 🇫🇷 Vue d'ensemble
@@ -87,13 +87,31 @@ L'amélioration principale identifiée concernait la **gestion robuste des erreu
 
 **C++ · C++ Builder · TCP/IP · sockets · Modbus RTU · RS-232 · CRC16 · TComPort · ModbusDoctor · Eurotherm 2216e**
 
+## Code publiable
+
+Les captures archivées ont permis de vérifier l'algorithme **CRC16 Modbus** et
+la construction des trames de fonctions 03 et 06. Une réécriture C++ portable,
+indépendante de C++ Builder et de TComPort, est disponible dans [`src/`](src/)
+avec son interface dans [`include/`](include/) et un test de vecteur CRC dans
+[`tests/`](tests/).
+
+```bash
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
 ## Robotique industrielle associée
 
 Des travaux complémentaires sur robots **Stäubli/VAL3** et sur une cellule **Fanuc–Stäubli–Siemens–Keyence** sont documentés dans [`docs/industrial-robotics.md`](docs/industrial-robotics.md). Ils sont séparés du projet Modbus pour ne pas mélanger les périmètres.
 
 ## Sources du dépôt
 
-Les rapports et présentations permettent de documenter précisément l'architecture et le comportement, mais les fichiers `.cpp/.h` originaux n'ont pas été retrouvés dans l'archive. Aucun code n'est donc reconstruit artificiellement.
+Les rapports, présentations et captures permettent de documenter précisément
+l'architecture et le comportement, mais les fichiers `.cpp/.h` complets de
+l'application C++ Builder n'ont pas été retrouvés. Le code publié ici est donc
+clairement identifié comme une **réécriture portable de la couche protocole**, et
+non comme l'application graphique originale.
 
 ---
 
@@ -109,4 +127,7 @@ The final report confirms end-to-end communication and identifies server-side er
 
 **Stack:** C++ · C++ Builder · TCP/IP · Modbus RTU · RS-232 · CRC16 · TComPort
 
-The original C++ source files are no longer present in the archive, so this repository documents the verified implementation without fabricating replacement code.
+The original C++ Builder project files are no longer present in the archive.
+Archived code screenshots did preserve the Modbus CRC16 and frame-building
+logic, so [`src/`](src/) now contains a portable, tested rewrite of that protocol
+layer. It is not presented as the original GUI application.
